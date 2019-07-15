@@ -93,9 +93,12 @@ const execa = (file, args, options) => {
 		return mergePromise(dummySpawned, errorPromise);
 	}
 
+	spawned.all = makeAllStream(spawned);
+
 	const spawnedPromise = getSpawnedPromise(spawned);
 	const timedPromise = setupTimeout(spawned, parsed.options, spawnedPromise);
 	const processDone = setExitHandler(spawned, parsed.options, timedPromise);
+	const spawnedResult = getSpawnedResult(spawned, parsed.options, processDone);
 
 	const context = {isCanceled: false};
 
@@ -103,7 +106,7 @@ const execa = (file, args, options) => {
 	spawned.cancel = spawnedCancel.bind(null, spawned, context);
 
 	const handlePromise = async () => {
-		const [{error, code, signal, timedOut}, stdoutResult, stderrResult, allResult] = await getSpawnedResult(spawned, parsed.options, processDone);
+		const [{error, code, signal, timedOut}, stdoutResult, stderrResult, allResult] = await spawnedResult;
 		const stdout = handleOutput(parsed.options, stdoutResult);
 		const stderr = handleOutput(parsed.options, stderrResult);
 		const all = handleOutput(parsed.options, allResult);
@@ -149,8 +152,6 @@ const execa = (file, args, options) => {
 	crossSpawn._enoent.hookChildProcess(spawned, parsed.parsed);
 
 	handleInput(spawned, parsed.options.input);
-
-	spawned.all = makeAllStream(spawned);
 
 	return mergePromise(spawned, handlePromiseOnce);
 };
