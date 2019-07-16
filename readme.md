@@ -306,6 +306,8 @@ Default: `true`
 
 Buffer the output from the spawned process. When buffering is disabled you must consume the output of the `stdout` and `stderr` streams because the promise will not be resolved/rejected until they have completed.
 
+Should be set to `false` when the returned promise is not used.
+
 If the spawned process fails, [`error.stdout`](#stdout), [`error.stderr`](#stderr), and [`error.all`](#all) will contain the buffered data.
 
 #### input
